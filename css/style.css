@@ -48,3 +48,33 @@
 		background: #ff9b85;
 	}
 }
+
+.lyrics {
+	color: black;
+    width: 100%;
+    font-size: 50px;
+	font-weight: bold;
+	font-family: 'Montserrat', sans-serif;
+	line-height: 55px;
+}
+
+.lyrics>p {
+	margin-bottom: 4rem;
+}
+
+.lyrics>p.active {
+	color: white;
+}
+
+.lyrics>p.last {
+	opacity: .5;
+}
+
+.progress {
+	height: 2px;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+	transition: width .0s ease;
+}

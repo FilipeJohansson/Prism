@@ -9,6 +9,9 @@
     <meta name="title" content="Prism">
 
 	<link rel="icon" href="./assets/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
 	<title>Prism</title>
     
 	<!--CSS-->
@@ -49,18 +52,131 @@
         </div>
     </div>
 
+    <div class="container-fluid">
+        <div class="row">
+            <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
+                <div style="background-color: #212529; border-radius: 100%; width: 45px; height: 45px; margin-left: 48%;">
+                    <svg onclick="pause()" xmlns="http://www.w3.org/2000/svg" style="color: white;" width="45" height="45" fill="currentColor" class="bi bi-pause" viewBox="0 0 16 16">
+                        <path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="position: absolute; top: 25%;">
+        <div class="row">
+            <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
+                <div class="progress">
+                    <div id="progressbar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div id="lyrics" class="lyrics">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <pre></pre>
+
     <script>
-        var rgb = randomRGB();
-        document.body.style.backgroundColor = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+        changeBackgroundColor(randomRGB());
 
         $('#btn_change_background').click(function() {
-            var rgb = randomRGB();
-            document.body.style.backgroundColor = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+            changeBackgroundColor(randomRGB());
         });
 
         function randomRGB() {
-            var rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)]
+            var white = [255, 255, 255];
+            var black = [0, 0, 0];
+
+            for(x = 0; x != 1; x++) {
+                var rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+                if(rgb === white || rgb === black)
+                    x = 1;
+            }
+            
             return rgb;
+        }
+
+        function changeBackgroundColor(rgb) {
+            document.body.style.backgroundColor = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+        }
+    </script>
+
+    <script>
+        var activeLine = 0;
+        var paused = false;
+        var lyric = [
+        "Hip Hop died, it's full of guys who cannot even rap (facts),",
+        "Media dividing us by colors, white or black (facts),",
+        "If you believe in Jesus, these days Christians get attacked (facts),",
+        "If you don't hate police then everybody thinks you're wack,",
+        "And everything's so connected",
+        "Black Lives Matter got so aggressive",
+        "White folks who agree can't support the message",
+        "Both sides go to war 'cause they don't respect it",
+        "Our social climate from the global tension",
+        "Turned to total violence and a whole depression",
+        "We could unify and then all go against them",
+        "But we let 'em divide us with votes and elections"
+        ];
+
+        fillLyric(lyric, activeLine);
+
+        var progressbarVal = 0;
+        setInterval(function(){
+            if(!paused) {
+                if(lyric.length != activeLine) {
+                    document.getElementById("progressbar").style.width = progressbarVal + "%";
+                    progressbarVal++;
+
+                    if(progressbarVal >= 100) {
+                        activeLine++;
+                        nextLine();
+
+                        progressbarVal = 0;
+                    }
+                } else {
+                    document.getElementById("progressbar").style.width = "0%";
+                }
+            }
+        }, 35);
+
+        function nextLine() {
+            fillLyric(lyric, activeLine);
+        }
+
+        function fillLyric(lyric, activeLine) {
+            var HTMLLyrics = '';
+
+            var x = 0;
+            lyric.forEach(function(item) {
+                switch (true) {
+                    case (x < activeLine || x > activeLine + 2):
+                        HTMLLyrics += '<p style="display: none;">' + item + '</p>';
+                        break;
+
+                    case (x == activeLine + 2):
+                        HTMLLyrics += '<p class="last">' + item + '</p>';
+                        break;
+
+                    case (lyric[activeLine] == item):
+                        HTMLLyrics += '<p class="active">' + item + '</p>';
+                        break;
+
+                    default:
+                        HTMLLyrics += '<p>' + item + '</p>';
+                        break;
+                }
+
+                x++;
+            });
+
+            document.getElementById("lyrics").innerHTML = HTMLLyrics;
+        }
+
+        function pause() {
+            paused = !paused;
         }
     </script>
 
