@@ -1,0 +1,50 @@
+.float-right {
+    float: right;
+}
+
+#btn_change_background {
+    border-radius: 0 0 0 .5rem;
+}
+
+#btn_search {
+    border-radius: 0 .5rem .5rem 0;
+}
+
+#input_search {
+    border-radius: .5rem 0 0 .5rem;
+}
+
+#logo {
+    display: -webkit-inline-box;
+}
+
+#logo_icon {
+    width: 50px;
+    height: 50px;
+
+    margin: 10px;
+
+    animation-name: logoPalette;
+	animation-duration: 5s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	animation-timing-function: linear;
+}
+
+@keyframes logoPalette {
+	0% {
+		background: #ee6055;
+	}
+	25% {
+		background: #60d394;
+	}
+	50% {
+		background: #aaf683;
+	}
+	75% {
+		background: #ffd97d;
+	}
+	100% {
+		background: #ff9b85;
+	}
+}
