@@ -76,8 +76,6 @@
         </div>
     </div>
 
-    <pre></pre>
-
     <script>
         changeBackgroundColor(randomRGB());
 
@@ -104,9 +102,13 @@
     </script>
 
     <script>
-        var activeLine = 0;
+        var progressbarVal = 0;
+
         var paused = false;
+
+        var activeLine = 0;
         var lyric = [
+        "%",
         "Hip Hop died, it's full of guys who cannot even rap (facts),",
         "Media dividing us by colors, white or black (facts),",
         "If you believe in Jesus, these days Christians get attacked (facts),",
@@ -120,52 +122,104 @@
         "We could unify and then all go against them",
         "But we let 'em divide us with votes and elections"
         ];
+        var lyricTime = [
+            0.5,
+            3.6,
+            3.6,
+            3.6,
+            3.6,
+            1.45,
+            1.65,
+            1.75,
+            1.75,
+            1.7,
+            1.73,
+            1.75,
+            2.4
+        ];
+        
+        var interval = lyricTime[activeLine] * 10;
+        var intervalId;
 
         fillLyric(lyric, activeLine);
+        startInterval(interval);
 
-        var progressbarVal = 0;
-        setInterval(function(){
-            if(!paused) {
-                if(lyric.length != activeLine) {
-                    document.getElementById("progressbar").style.width = progressbarVal + "%";
-                    progressbarVal++;
+        function startInterval(interval) {
+            // Store the id of the interval so we can clear it later
+            intervalId = setInterval(function() {
+                if(!paused) {
+                    if(lyric.length != activeLine) {
+                        document.getElementById("progressbar").style.width = progressbarVal + "%";
+                        progressbarVal++;
 
-                    if(progressbarVal >= 100) {
-                        activeLine++;
-                        nextLine();
+                        if(progressbarVal >= 100) {
+                            activeLine++;
+                            nextLine();
 
-                        progressbarVal = 0;
+                            progressbarVal = 0;
+                        }
+                    } else {
+                        document.getElementById("progressbar").style.width = "0%";
                     }
-                } else {
-                    document.getElementById("progressbar").style.width = "0%";
                 }
-            }
-        }, 35);
+            }, interval);
+        }
 
         function nextLine() {
             fillLyric(lyric, activeLine);
+            
+            interval = lyricTime[activeLine] * 10;
+
+            // clear the existing interval
+            clearInterval(intervalId);
+            // just start a new one
+            startInterval(interval);
         }
 
         function fillLyric(lyric, activeLine) {
             var HTMLLyrics = '';
 
             var x = 0;
+            var current;
+            var next;
+            var last;
             lyric.forEach(function(item) {
                 switch (true) {
+                    case (next == x):
+                        HTMLLyrics += '<p>' + item + '</p>';
+                        break;
+                    
+                    case (x == next + 1 || last == x):
+                        HTMLLyrics += '<p class="last">' + item + '</p>';
+                        break;
+
                     case (x < activeLine || x > activeLine + 2):
                         HTMLLyrics += '<p style="display: none;">' + item + '</p>';
                         break;
 
                     case (x == activeLine + 2):
-                        HTMLLyrics += '<p class="last">' + item + '</p>';
+                        if(item == "%") {
+                            last = x + 1;
+                        } else {
+                            HTMLLyrics += '<p class="last">' + item + '</p>';
+                        }
                         break;
 
                     case (lyric[activeLine] == item):
-                        HTMLLyrics += '<p class="active">' + item + '</p>';
+                        if(item == "%") {
+                            current = x + 1;
+                            HTMLLyrics += '<p class="active"></p>';
+                        } else {
+                            HTMLLyrics += '<p class="active">' + item + '</p>';
+                        }
                         break;
 
                     default:
-                        HTMLLyrics += '<p>' + item + '</p>';
+                        if(item == "%") {
+                            next = x + 1;
+                        } else {
+                            HTMLLyrics += '<p>' + item + '</p>';
+                        }
                         break;
                 }
 
