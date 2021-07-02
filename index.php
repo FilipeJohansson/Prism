@@ -154,9 +154,8 @@
 
                         if(progressbarVal >= 100) {
                             activeLine++;
-                            nextLine();
-
                             progressbarVal = 0;
+                            nextLine();
                         }
                     } else {
                         document.getElementById("progressbar").style.width = "0%";
