@@ -73,8 +73,44 @@
 .progress {
 	height: 2px;
     margin-bottom: 10px;
+	padding: 0;
 }
 
 .progress-bar {
 	transition: width .0s ease;
+}
+
+.tip {
+	height: 50px;
+}
+
+.tip>p {
+	text-align: center;
+	font-size: 24px;
+
+	animation-name: tipPalette;
+	animation-duration: 5s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	animation-timing-function: linear;
+}
+
+@keyframes tipPalette {
+	0% {
+		color: #ee6055;
+		font-size: 24px;
+	}
+	25% {
+		color: #60d394;
+	}
+	50% {
+		color: #aaf683;
+		font-size: 34px;
+	}
+	75% {
+		color: #ffd97d;
+	}
+	100% {
+		color: #ff9b85;
+	}
 }

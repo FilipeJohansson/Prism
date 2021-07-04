@@ -33,44 +33,64 @@
         </div>
     </header>
 
-    <div class="container-fluid">
+    <div class="container">
         <div class="row">
-            <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
-                <div class="input-group mb-3">
-                    <input id="input_search" type="text" class="form-control" placeholder="Search video" aria-label="Search video" aria-describedby="basic-addon2">
-                    <div class="input-group-btn">
-                        <button id="btn_search" class="btn btn-dark" type="submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24">
-                                <title>Search</title>
-                                <circle cx="10.5" cy="10.5" r="7.5"></circle>
-                                <path d="M21 21l-5.2-5.2"></path>
-                            </svg>
-                        </button>
+            <div class="col-sm-12 col-md-5 col-lg-6">
+                <div class="position-sticky" style="top: 2rem;">
+
+                    <!-- 1. The <iframe> (video player) will replace this <div> tag. -->
+                    <div class="iframe-container">
+                        <div id="player"></div>
+                    </div>
+                    <script>
+                        // 2. This code loads the IFrame Player API code asynchronously.
+                        var tag = document.createElement('script');
+
+                        tag.src = "https://www.youtube.com/iframe_api";
+                        var firstScriptTag = document.getElementsByTagName('script')[0];
+                        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                    </script>
+
+
+                    <div id="time">
+                        <p >0</p>
+                    </div>
+                    <div id="currentTime">
+                        <p >0</p>
+                    </div>
+                    <div id="for">
+                        <p >0</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
-                <div style="background-color: #212529; border-radius: 100%; width: 45px; height: 45px; margin-left: 48%;">
-                    <svg onclick="pause()" xmlns="http://www.w3.org/2000/svg" style="color: white;" width="45" height="45" fill="currentColor" class="bi bi-pause" viewBox="0 0 16 16">
-                        <path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
-                    </svg>
+            <div class="col-sm-12 col-md-7 col-lg-6">
+                <div class="row mb-3">
+                    <div class="input-group mb-3">
+                        <input id="input_search" type="text" class="form-control" placeholder="Search video" aria-label="Search video" aria-describedby="basic-addon2">
+                        <div class="input-group-btn">
+                            <button id="btn_search" class="btn btn-dark" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24">
+                                    <title>Search</title>
+                                    <circle cx="10.5" cy="10.5" r="7.5"></circle>
+                                    <path d="M21 21l-5.2-5.2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="container-fluid" style="position: absolute; top: 25%;">
-        <div class="row">
-            <div class="offset-sm-1 offset-md-2 offset-lg-3 col-sm-10 col-md-8 col-lg-6">
-                <div class="progress">
-                    <div id="progressbar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="row">
+                    <div class="progress">
+                        <div id="progressbar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
                 </div>
-                <div id="lyrics" class="lyrics">
+
+                <div class="row">
+                    <div id="tip" class="tip">
+                        <p>To start lyric, start video</p>
+                    </div>
+                    <div id="lyrics" class="lyrics">
+                    </div>
                 </div>
             </div>
         </div>
@@ -102,11 +122,28 @@
     </script>
 
     <script>
+        var line = {
+            actualLine: 0,
+            lineChanged: function(value) {},
+            set line(value) {
+                if(this.actualLine != value) {
+                    this.actualLine = value;
+                    this.lineChanged();
+                }
+            },
+            get line() {
+                return this.actualLine;
+            },
+            registerListener: function(listener) {
+                this.lineChanged = listener;
+            }
+        }
+
+        var videoCurrentTime = 0;
+
+
         var progressbarVal = 0;
-
-        var paused = false;
-
-        var activeLine = 0;
+        
         var lyric = [
         "%",
         "Hip Hop died, it's full of guys who cannot even rap (facts),",
@@ -120,62 +157,153 @@
         "Our social climate from the global tension",
         "Turned to total violence and a whole depression",
         "We could unify and then all go against them",
-        "But we let 'em divide us with votes and elections"
+        "But we let 'em divide us with votes and elections",
+        "%",
+        "The music we bump"
         ];
-        var lyricTime = [
-            0.5,
-            3.6,
-            3.6,
-            3.6,
-            3.6,
-            1.45,
-            1.65,
-            1.75,
-            1.75,
-            1.7,
-            1.73,
-            1.75,
-            2.4
+        var lyricTimes = [
+            0, 0.92158,
+            0.921584, 4.432019,
+            4.589938, 7.91702,
+            8.09469, 11.663296,
+            11.674208, 14.796861,
+            14.800979, 16.016417,
+            16.426029, 17.912534,
+            18.106029, 19.714666,
+            19.805666, 21.896879,
+            21.909135, 23.568848,
+            23.575311, 25.37915,
+            25.389817, 27.28253,
+            27.324496, 29.4414,
+            29.44692, 29.702047,
+            29.756153, 30.638613
         ];
         
-        var interval = lyricTime[activeLine] * 10;
+        var interval = calculateInterval(lyricTimes[0], lyricTimes[1]);
+
+        fillLyric(lyric, line.actualLine);
+
+        // 3. This function creates an <iframe> (and YouTube player)
+        //    after the API code downloads.
+        var player;
+        var paused = true;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                width: '100%',
+                videoId: 't86ClLM3ZGY',
+                playerVars: {
+                    'playsinline': 0, 
+                    'rel': 0,
+                    'controls': 1,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'fs': 0,
+                    'cc_load_policy': 0,
+                },
+                events: {
+                    'onReady': function() {
+                        player.mute();
+                    },
+                    'onStateChange': stateChange,
+                }
+            });
+        }
+
         var intervalId;
 
-        fillLyric(lyric, activeLine);
-        startInterval(interval);
+        // 4. The API will call this function when the video player is ready.
+        function stateChange(event) {
+            if (player.isMuted() && player.getPlayerState() == -1 && paused) {
+                document.getElementById("tip").style.display = "none";
 
-        function startInterval(interval) {
-            // Store the id of the interval so we can clear it later
-            intervalId = setInterval(function() {
-                if(!paused) {
-                    if(lyric.length != activeLine) {
-                        document.getElementById("progressbar").style.width = progressbarVal + "%";
-                        progressbarVal++;
+                //intervalId = startInterval(interval);
+                pause(false);
 
-                        if(progressbarVal >= 100) {
-                            activeLine++;
-                            progressbarVal = 0;
-                            nextLine();
+                player.unMute();
+                player.playVideo();
+            } else {
+                pause();
+            }
+        }
+
+        var y = false;
+        setInterval(function() {
+            if(player.getPlayerState() == 2) {
+                pause(true);
+            }
+
+            if(!paused) {
+                videoCurrentTime = player.playerInfo.currentTime;
+                document.getElementById("currentTime").innerHTML = '<p>current time: ' + videoCurrentTime + '</p>';
+
+                for(var x = 0; x <= lyricTimes.length + 1; x += 2) {
+                    document.getElementById("for").innerHTML = '<p>x: ' + x + '</p><p>lyricTimes[x]: ' + lyricTimes[x] + '</p>';
+
+                    if(videoCurrentTime >= lyricTimes[x] && videoCurrentTime <= lyricTimes[x + 1]) {
+                        if(x == 0) {
+                            line.line = 0;
+                        } else {
+                            line.line = x / 2;
                         }
-                    } else {
-                        document.getElementById("progressbar").style.width = "0%";
+                        
+                        break;
+                    }
+
+                    if(videoCurrentTime > lyricTimes[lyricTimes.length - 1]) {
+                        if(!y) {
+                            goToLine(line.actualLine++);
+                            y = true;
+                        }
+                            
+                        clearInterval(intervalId);
+                    }
+                    
+                }
+            }
+        }, 10);
+
+        function goToLine(line) {
+            // clear the existing interval
+            clearInterval(intervalId);
+
+            var currentTime = videoCurrentTime;
+
+            interval = calculateInterval(currentTime, lyricTimes[(line * 2) + 1]);
+
+            fillLyric(lyric);
+
+            var percent = calculateProgressPercent(lyricTimes[line * 2], lyricTimes[(line * 2) + 1], currentTime);
+
+            // just start a new one
+            startInterval(interval, percent);
+            
+        }
+
+        function calculateProgressPercent(start, end, currentTime) {
+            var diff = end - start;
+            var target = currentTime - start;
+            var percent = (target * 100) / diff;
+
+            return percent;
+        }
+
+        function startInterval(interval, percent) {
+            progressbarVal = percent;
+            // Store the id of the interval so we can clear it later
+            intervalId = setInterval(function () {
+                if(!paused) {
+                    document.getElementById("progressbar").style.width = progressbarVal + "%";
+                    progressbarVal++;
+
+                    if(progressbarVal >= 101) {
+                        progressbarVal = 0;
+                        clearInterval(intervalId);
                     }
                 }
             }, interval);
         }
 
-        function nextLine() {
-            fillLyric(lyric, activeLine);
-            
-            interval = lyricTime[activeLine] * 10;
-
-            // clear the existing interval
-            clearInterval(intervalId);
-            // just start a new one
-            startInterval(interval);
-        }
-
-        function fillLyric(lyric, activeLine) {
+        function fillLyric(lyric) {
             var HTMLLyrics = '';
 
             var x = 0;
@@ -192,11 +320,11 @@
                         HTMLLyrics += '<p class="last">' + item + '</p>';
                         break;
 
-                    case (x < activeLine || x > activeLine + 2):
+                    case (x < line.actualLine || x > line.actualLine + 2):
                         HTMLLyrics += '<p style="display: none;">' + item + '</p>';
                         break;
 
-                    case (x == activeLine + 2):
+                    case (x == line.actualLine + 2):
                         if(item == "%") {
                             last = x + 1;
                         } else {
@@ -204,7 +332,7 @@
                         }
                         break;
 
-                    case (lyric[activeLine] == item):
+                    case (lyric[line.actualLine] == item):
                         if(item == "%") {
                             current = x + 1;
                             HTMLLyrics += '<p class="active"></p>';
@@ -230,6 +358,28 @@
 
         function pause() {
             paused = !paused;
+        }
+
+        function pause(value) {
+            paused = value;
+        }
+        
+        function calculateInterval(start, end) {
+            var interval = (end - start) * 10;
+
+            document.getElementById("time").innerHTML = '<p>Interval: ' + interval + '</p><p>Linha Ativa: ' + line.actualLine + '</p><p>Start - End: ' + 
+            start + ' - ' + end + '</p>';
+
+            return interval;
+        }
+
+        line.registerListener(function(value) {
+            goToLine(line.actualLine);            
+        });
+
+        window.onclick = () => {
+            console.log("Linha atual:" + line.actualLine);
+            console.log("Tempo:" + player.playerInfo.currentTime);
         }
     </script>
 
