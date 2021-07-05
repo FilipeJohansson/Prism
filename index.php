@@ -3,14 +3,15 @@
     require_once("./php/Music.php");
 
     $class = new ReflectionClass("Database");
-    $property = $class->getProperty("connection");
-    $property->setAccessible(true);
+    $conn_property = $class->getProperty("connection");
+    $conn_property->setAccessible(true);
 
     $database = Database::getInstance();
+    $conn = $conn_property->getValue($database);
 
     $id = 1;
 
-    $result = $property->getValue($database)->prepare("SELECT * FROM musics WHERE `id` = :id");
+    $result = $conn->prepare("SELECT * FROM musics WHERE `id` = :id");
     $result->bindParam(':id', $id, PDO::PARAM_INT);
     $result->execute();
 
@@ -23,6 +24,7 @@
     $lyric = explode(';', $music->musicLyric);
     $times = explode(';', $music->musicTimes);
 
+    $conn = null;
     $database->close();
 ?>
 
