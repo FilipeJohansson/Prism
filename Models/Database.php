@@ -1,6 +1,6 @@
 <?php
 
-require_once("config.ini.php");
+require_once("./php/config.ini.php");
 
 class Database extends PDO {
 

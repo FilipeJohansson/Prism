@@ -1,6 +1,6 @@
 <?php
-    include_once("../Models/Database.php");
-    include_once("../Models/Music.php");
+    include_once("./Models/Database.php");
+    include_once("./Models/Music.php");
 
     class MusicDAO extends Database {
         public function __construct() { }
