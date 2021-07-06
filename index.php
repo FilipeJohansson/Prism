@@ -56,8 +56,8 @@
         $( function() {
             var availableTags = [
                 <?php
-                    if($title != -1)
-                        foreach ($title as $t)
+                    if($titles != -1)
+                        foreach ($titles as $t)
                             echo '"' . $t . '",';    
                 ?>
             ];
