@@ -2,12 +2,12 @@
 
     class Music {
     
-        public function __construct($id, $videoId, $musicTitle, $musicLyric, $musicTimes) {
+        public function __construct($id, $videoId, $title, $lyric, $times) {
             $this->id = $id;
             $this->videoId = $videoId;
-            $this->musicTitle = $musicTitle;
-            $this->musicLyric = $musicLyric;
-            $this->musicTimes = $musicTimes;
+            $this->title = $title;
+            $this->lyric = $lyric;
+            $this->times = $times;
         }
 
         public function __set($name, $value) {

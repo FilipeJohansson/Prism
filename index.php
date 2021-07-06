@@ -1,31 +1,29 @@
 <?php
-    require_once("./php/Database.php");
-    require_once("./php/Music.php");
+    require_once("./DAOs/MusicDAO.php");
 
-    $class = new ReflectionClass("Database");
-    $conn_property = $class->getProperty("connection");
-    $conn_property->setAccessible(true);
+    $musicDAO = new MusicDAO();
 
-    $database = Database::getInstance();
-    $conn = $conn_property->getValue($database);
+    // get all titles to fill autocomplete tags
+    $titles = $musicDAO->getMusicsTitle();
+    
+    /* get a music from a title
+    *  Music = {
+    *      $id;
+    *      $videoId;
+    *      $musicTitle;
+    *      $musicLyric;
+    *      $musicTimes;
+    *  }
+    */
+    $music = $musicDAO->getMusicFromTitle("No lives matter");
 
-    $id = 1;
-
-    $result = $conn->prepare("SELECT * FROM musics WHERE `id` = :id");
-    $result->bindParam(':id', $id, PDO::PARAM_INT);
-    $result->execute();
-
-    if($result->rowCount() > 0) {
-        while ($m = $result->fetch(PDO::FETCH_ASSOC)) {
-            $music = new Music($m['id'], $m['videoId'], $m['musicTitle'], $m['musicLyric'], $m['musicTimes']);
-        }
+    if(is_int($music) || is_int($titles)) {
+        if($music == -1) { /* ERROR */ }
+        if($titles == -1) { /* ERROR */ }
     }
 
-    $lyric = explode(';', $music->musicLyric);
-    $times = explode(';', $music->musicTimes);
-
-    $conn = null;
-    $database->close();
+    // break lyric into an array by the separator
+    $lyric = explode(';', $music->lyric);
 ?>
 
 <!DOCTYPE html>
@@ -55,15 +53,19 @@
     <script src="./js/jquery-ui.js"></script>
 
     <script>
-  $( function() {
-    var availableTags = [
-      "No Lives Matter",
-    ];
-    $( "#input_search" ).autocomplete({
-      source: availableTags
-    });
-  } );
-  </script>
+        $( function() {
+            var availableTags = [
+                <?php
+                    if($title != -1)
+                        foreach ($title as $t)
+                            echo '"' . $t . '",';    
+                ?>
+            ];
+            $( "#input_search" ).autocomplete({
+                source: availableTags
+            });
+        } );
+    </script>
 </head>
 <body>
 
@@ -137,14 +139,14 @@
             </div>
             <div id="lyric-column" class="offset-md-3 offset-lg-3 col-sm-12 col-md-7 col-lg-6" style="display: none;">
                 <div class="row">
-                    <div id="tip" class="tip mb-4">
-                        <p>To start lyric, start video</p>
+                    <div class="progress">
+                        <div id="progressbar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="progress">
-                        <div id="progressbar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div id="tip" class="tip mb-4">
+                        <p>To start lyric, start video</p>
                     </div>
                 </div>
 
@@ -192,7 +194,7 @@
         
         var lyricTimes = [
             <?php
-                echo $music->musicTimes;
+                echo $music->times;
             ?>
         ];
 
