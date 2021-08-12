@@ -1,51 +1,61 @@
 <?php
-    include_once("./Models/Database.php");
-    include_once("./Models/Music.php");
 
-    class MusicDAO extends Database {
-        public function __construct() { }
+require_once("./Models/Database.php");
+require_once("./Models/Music.php");
 
-        private function __clone() { }
+class MusicDAO extends Database {
+    
+    public function __construct() { }
 
-        public function __destruct() {
-            foreach ($this as $key => $value) {
-                unset($this->key);
-            }
+    private function __clone() { }
 
-            foreach (array_keys(get_defined_vars()) as $var) {
-                unset(${"$var"});
-            }
-            unset($var);
+    public function __destruct() {
+        foreach ($this as $key => $value) {
+            unset($this->key);
         }
 
-        public function getMusicsTitle() {
-            $query = "SELECT title FROM musics;";
-            $database = Database::getInstance();
-            $result = $database->connection->prepare($query);
+        foreach (array_keys(get_defined_vars()) as $var) {
+            unset(${"$var"});
+        }
+        unset($var);
+    }
 
-            if(!$result->execute())
-                return -1;
+    public function getMusicsTitle() {
+        $query = "SELECT title FROM musics;";
+        $database = Database::getInstance();
+        $result = $database->connection->prepare($query);
 
-            if($result->rowCount() > 0) {
-                $titles = array();
-                while($m = $result->fetch(PDO::FETCH_ASSOC))
-                    array_push($titles, $m['title']);
-                return $titles;
-            }
+        if(!$result->execute()) {
+            $database->close();
+            return -1;
         }
 
-        public function getMusicFromTitle($title) {
-            $query = "SELECT * FROM musics WHERE `title` = :title;";
-            $database = Database::getInstance();
-            $result = $database->connection->prepare($query);
-            $result->bindParam(':title', $title, PDO::PARAM_STR);
-
-            if(!$result->execute())
-                return -1;
-
-            if($result->rowCount() > 0)
-                while ($m = $result->fetch(PDO::FETCH_ASSOC))
-                    $music = new Music($m['id'], $m['videoId'], $m['title'], $m['lyric'], $m['times']);
-            return $music;
+        if($result->rowCount() > 0) {
+            $titles = array();
+            while($m = $result->fetch(PDO::FETCH_ASSOC))
+                array_push($titles, $m['title']);
+            
+            $database->close();
+            return $titles;
         }
     }
+
+    public function getMusicFromTitle($title) {
+        $query = "SELECT * FROM musics WHERE `title` = :title;";
+        $database = Database::getInstance();
+        $result = $database->connection->prepare($query);
+        $result->bindParam(':title', $title, PDO::PARAM_STR);
+
+        if(!$result->execute()) {
+            $database->close();
+            return -1;
+        }
+
+        if($result->rowCount() > 0)
+            while ($m = $result->fetch(PDO::FETCH_ASSOC))
+                $music = new Music($m['id'], $m['videoId'], $m['title'], $m['lyric'], $m['times']);
+
+        $database->close();
+        return $music;
+    }
+}

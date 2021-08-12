@@ -79,23 +79,8 @@
     </header>
 
     <div class="container">
-        <div class="row mb-3">
-            <div class="offset-md-3 offset-lg-3 col-sm-12 col-md-5 col-lg-6">
-                <div class="input-group mb-3">
-                    <input id="input_search" type="text" class="form-control" placeholder="Search music" aria-label="Search video" aria-describedby="basic-addon2">
-                    <div class="input-group-btn">
-                        <button id="btn_search" class="btn btn-dark" type="submit" onclick="search()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24">
-                                <circle cx="10.5" cy="10.5" r="7.5"></circle>
-                                <path d="M21 21l-5.2-5.2"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row">
-            <div id="video-column" class="col-sm-12 col-md-5 col-lg-4" style="display: none;">
+            <div id="video-column" class="col-sm-12 col-md-5 col-lg-4">
                 <div class="position-sticky" style="top: 2rem;">
 
                     <!-- 1. The <iframe> (video player) will replace this <div> tag. -->
@@ -135,21 +120,14 @@
                             });
                         }
                     </script>
+
+                    <div class="row">
+                        <div id="videoTime" class="videoTime">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="lyric-column" class="offset-md-3 offset-lg-3 col-sm-12 col-md-7 col-lg-8" style="display: none;">
-                <div class="row">
-                    <div class="progress">
-                        <div id="progressbar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div id="tip" class="tip mb-4">
-                        <p>To start lyric, start video</p>
-                    </div>
-                </div>
-
+            <div id="lyric-column" class="col-sm-12 col-md-7 col-lg-8">
                 <div class="row">
                     <div id="lyrics" class="lyrics">
                     </div>
@@ -270,6 +248,8 @@
                     
                 }
             }
+
+            document.getElementById("videoTime").innerHTML = "Current Time: " + videoCurrentTime;
         }, 10);
 
         function goToLine(line) {
@@ -317,44 +297,18 @@
             var HTMLLyrics = '';
 
             var x = 0;
-            var current;
-            var next;
-            var last;
             lyric.forEach(function(item) {
                 switch (true) {
-                    case (next == x):
-                        HTMLLyrics += '<p>' + item + '</p>';
-                        break;
-                    
-                    case (x == next + 1 || last == x):
-                        HTMLLyrics += '<p class="last">' + item + '</p>';
-                        break;
-
-                    case (x < line.actualLine || x > line.actualLine + 2):
-                        HTMLLyrics += '<p style="display: none;">' + item + '</p>';
-                        break;
-
-                    case (x == line.actualLine + 2):
-                        if(item == "%") {
-                            last = x + 1;
-                        } else {
-                            HTMLLyrics += '<p class="last">' + item + '</p>';
-                        }
-                        break;
-
                     case (lyric[line.actualLine] == item):
-                        if(item == "%") {
-                            current = x + 1;
-                            HTMLLyrics += '<p class="active"></p>';
-                        } else {
+                        if(item != "%") {
+                            HTMLLyrics += '<div class="row"><div class="col-sm-6"><input type="text" class="form-control" placeholder="' + lyricTimes[x * 2] + '"></input></div><div class="col-sm-6"><input type="text" class="form-control" placeholder="' + lyricTimes[x * 2 + 1] + '"></input></div></div>';
                             HTMLLyrics += '<p class="active">' + item + '</p>';
                         }
                         break;
 
                     default:
-                        if(item == "%") {
-                            next = x + 1;
-                        } else {
+                        if(item != "%") {
+                            HTMLLyrics += '<div class="row"><div class="col-sm-6"><input type="text" class="form-control" placeholder="' + lyricTimes[x * 2] + '"></input></div><div class="col-sm-6"><input type="text" class="form-control" placeholder="' + lyricTimes[x * 2 + 1] + '"></input></div></div>';
                             HTMLLyrics += '<p>' + item + '</p>';
                         }
                         break;
@@ -382,11 +336,6 @@
         line.registerListener(function(value) {
             goToLine(line.actualLine);            
         });
-
-        window.onclick = () => {
-            console.log("Linha atual:" + lyric[line.actualLine]);
-            console.log("Tempo:" + player.playerInfo.currentTime);
-        }
     </script>
 
     <script>
